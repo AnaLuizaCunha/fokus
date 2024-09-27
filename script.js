@@ -3,16 +3,20 @@ const html = document.querySelector('html');
 const focusBtn = document.querySelector('.app__card-button--foco');
 const shortBtn = document.querySelector('.app__card-button--curto');
 const longBtn = document.querySelector('.app__card-button--longo');
-// const playBtn = document.getElementById('start-pause');
-// const displayTime = document.getElementById('timer');
 const banner = document.querySelector('.app__image');
 const title = document.querySelector('.app__title');
 const buttons = document.querySelectorAll('.app__card-button');
 const musicFocusInput = document.querySelector('#alternar-musica');
+const playOrPauseBtn = document.querySelector('#start-pause span');
+const playOrPauseBtnIcon = document.querySelector('.app__card-primary-butto-icon');
+const displayTimer = document.querySelector('#timer');
 const music = new Audio('/sons/luna-rise-part-one.mp3');
 const starPauseBtn = document.querySelector('#start-pause');
+const audioPlay = new Audio('/sons/play.wav');
+const audioPause = new Audio('/sons/pause.mp3');
+const audioTimeFinished = new Audio('./sons/beep.mp3');
 
-let elapsedTimeInSeconds = 5;
+let elapsedTimeInSeconds = 1500; // 1500 = 25 min
 let breakId = null;
 
 music.loop = true;
@@ -28,21 +32,25 @@ musicFocusInput.addEventListener('change', () => {
 
 
 focusBtn.addEventListener('click', () => {
+    elapsedTimeInSeconds = 1500;
     changeContext('foco');
     focusBtn.classList.add('active');
 });
 
 shortBtn.addEventListener('click', () => {
+    elapsedTimeInSeconds = 300;
     changeContext('descanso-curto');
     shortBtn.classList.add('active');
 });
 
 longBtn.addEventListener('click', () => {
+    elapsedTimeInSeconds = 900;
     changeContext('descanso-longo');
     longBtn.classList.add('active');
 });
 
 function changeContext(context) {
+    displayTime();
     buttons.forEach(function(context) {
         context.classList.remove('active');
     })
@@ -73,34 +81,40 @@ function changeContext(context) {
 
 const countdown = () => {
     if (elapsedTimeInSeconds <= 0) {
-        reset();
+        audioTimeFinished.play();
         alert('Acabou o tempo!');
+        reset();
         return;
     }
     elapsedTimeInSeconds -= 1;
-    console.log(elapsedTimeInSeconds);
+    displayTime();
 }
 
-starPauseBtn.addEventListener('click', startTimer);
+starPauseBtn.addEventListener('click', startAndPauseTimer);
 
 function startAndPauseTimer() {
     if (breakId) {
+        audioPause.play();
         reset();
         return;
     }
-    breakId = setInterval(countdown, 1000);
+    audioPlay.play();
+    breakId = setInterval(countdown, 1000); // setInterval: a cada 1000 ms executa a funcao countdown
+    playOrPauseBtn.textContent = 'Pausar'; // textContent somente quando queremos passar um texto, innerHTML usado em casos de texto e tags
+    playOrPauseBtnIcon.setAttribute('src', `/imagens/pause.png`);
 }
 
 function reset() {
-    clearInterval(breakId);
-    breakId = null;
+    clearInterval(breakId); // para o que o setInterval comecou 
+    playOrPauseBtn.textContent = 'Começar';
+    playOrPauseBtnIcon.setAttribute('src', `/imagens/play_arrow.png`);
+    breakId = null; // valor volta a ser null para poder parar de rodar o if da funcao countdown
 }
 
+function displayTime() {
+    const time = new Date(elapsedTimeInSeconds * 1000);
+    const formattedTime = time.toLocaleTimeString('pt-BR', {minute: '2-digit', second: '2-digit'});
+    displayTimer.innerHTML = `${formattedTime}`
+}
 
-
-
-
-// playBtn.addEventListener('click', () => {
-//     timer
-// });
-
+displayTime();
