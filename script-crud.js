@@ -2,9 +2,13 @@ const btnAddTask = document.querySelector('.app__button--add-task');
 const formAddTask = document.querySelector('.app__form-add-task');
 const textArea = document.querySelector('.app__form-textarea');
 const ulTask = document.querySelector('.app__section-task-list');
-
+const btnCancel = document.querySelector('.app__form-footer__button--cancel');
 
 const tasks = JSON.parse(localStorage.getItem('tasks')) || []; // o parse transforma a string em um array de objetos, funciona como o inverso do stringify; se nao tiver nada no localStorage, ele retorna um array vazio
+
+function updateTask() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
 
 function createTaskElement(task) {
     const li = document.createElement('li');
@@ -19,11 +23,26 @@ function createTaskElement(task) {
     `;
 
     const p = document.createElement('p');
+    
     p.classList.add('app__section-task-list-item-description');
     p.textContent = task.description;
 
     const button = document.createElement('button');
     button.classList.add('app_button-edit');
+
+    button.onclick = () => {
+        // debugger; // para o código aqui
+        const newDrescription = prompt('Qual o novo nome da tarefa?');
+        if(newDrescription) {
+            p.textContent = newDrescription;
+            task.description = newDrescription;
+            updateTask();
+        }
+        // p.textContent = newDrescription;
+        // task.description = newDrescription;
+        // updateTask();
+    }
+
     const btnImg = document.createElement('img');
     btnImg.setAttribute('src', '/imagens/edit.png');
 
@@ -51,12 +70,18 @@ formAddTask.addEventListener('submit', (event) => {
     tasks.push(task);
     const taskElement = createTaskElement(task);
     ulTask.append(taskElement);
-    localStorage.setItem('tasks', JSON.stringify(tasks)); // guarda a tarefa no localStorage, se atualizar a página, a tarefa não some
-    textArea.value = ''; // limpa o campo de texto
-    formAddTask.classList.add('hidden'); // esconde o formulário
+    updateTask() // guarda a tarefa no localStorage, se atualizar a página, a tarefa não some
+    cleanForm();
 })
 
 tasks.forEach(task => {
     const taskElement = createTaskElement(task);
     ulTask.append(taskElement);
 });
+
+const cleanForm = () => {
+    textArea.value = ''; // limpa o campo de texto
+    formAddTask.classList.add('hidden'); // limpa o campo de texto
+}
+
+btnCancel.addEventListener('click', cleanForm);
