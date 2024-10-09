@@ -16,7 +16,8 @@ const audioPlay = new Audio('/sons/play.wav');
 const audioPause = new Audio('/sons/pause.mp3');
 const audioTimeFinished = new Audio('./sons/beep.mp3');
 
-let elapsedTimeInSeconds = 1500; // 1500 = 25 min
+// let elapsedTimeInSeconds = 1500; // 1500 = 25 min
+let elapsedTimeInSeconds = 30; 
 let breakId = null;
 
 music.loop = true;
@@ -32,19 +33,22 @@ musicFocusInput.addEventListener('change', () => {
 
 
 focusBtn.addEventListener('click', () => {
-    elapsedTimeInSeconds = 1500;
+    // elapsedTimeInSeconds = 1500;
+    elapsedTimeInSeconds = 30;
     changeContext('foco');
     focusBtn.classList.add('active');
 });
 
 shortBtn.addEventListener('click', () => {
-    elapsedTimeInSeconds = 300;
+    // elapsedTimeInSeconds = 300;
+    elapsedTimeInSeconds = 5;
     changeContext('descanso-curto');
     shortBtn.classList.add('active');
 });
 
 longBtn.addEventListener('click', () => {
-    elapsedTimeInSeconds = 900;
+    // elapsedTimeInSeconds = 900;
+    elapsedTimeInSeconds = 15;
     changeContext('descanso-longo');
     longBtn.classList.add('active');
 });
@@ -83,6 +87,11 @@ const countdown = () => {
     if (elapsedTimeInSeconds <= 0) {
         audioTimeFinished.play();
         alert('Acabou o tempo!');
+        const activeFocus = html.getAttribute('data-contexto') == 'foco';
+        if(activeFocus) {
+            const event = new CustomEvent('focusFinished');
+            document.dispatchEvent(event);
+        }
         reset();
         return;
     }

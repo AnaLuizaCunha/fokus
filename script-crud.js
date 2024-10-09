@@ -2,9 +2,13 @@ const btnAddTask = document.querySelector('.app__button--add-task');
 const formAddTask = document.querySelector('.app__form-add-task');
 const textArea = document.querySelector('.app__form-textarea');
 const ulTask = document.querySelector('.app__section-task-list');
+const descriptionTaskParagraph = document.querySelector('.app__section-active-task-description');
 const btnCancel = document.querySelector('.app__form-footer__button--cancel');
 
 const tasks = JSON.parse(localStorage.getItem('tasks')) || []; // o parse transforma a string em um array de objetos, funciona como o inverso do stringify; se nao tiver nada no localStorage, ele retorna um array vazio
+
+let activeTask = null;
+let liActiveTask = null;
 
 function updateTask() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -52,6 +56,24 @@ function createTaskElement(task) {
     li.appendChild(p);
     li.appendChild(button);
 
+    li.onclick = () => {
+        document.querySelectorAll('.app__section-task-list-item-active').forEach(element => {
+            element.classList.remove('app__section-task-list-item-active');
+        })
+        
+        if(activeTask == task) {
+            descriptionTaskParagraph.textContent = '';
+            activeTask = null;
+            liActiveTask = null;
+            return;
+        }
+        activeTask = task;
+        liActiveTask = li;
+        descriptionTaskParagraph.textContent = task.description;
+        li.classList.add('app__section-task-list-item-active');
+        
+    }
+
     return li;
 
 }
@@ -85,3 +107,12 @@ const cleanForm = () => {
 }
 
 btnCancel.addEventListener('click', cleanForm);
+
+document.addEventListener('focusFinished', () => {
+    if(activeTask && liActiveTask) {
+        liActiveTask.classList.remove('app__section-task-list-item-active');
+        liActiveTask.classList.add('app__section-task-list-item-complete');
+        liActiveTask.querySelector('button').setAttribute('disabled', 'disabled');
+
+    }
+});
