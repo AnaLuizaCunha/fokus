@@ -5,7 +5,10 @@ const ulTask = document.querySelector('.app__section-task-list');
 const descriptionTaskParagraph = document.querySelector('.app__section-active-task-description');
 const btnCancel = document.querySelector('.app__form-footer__button--cancel');
 
-const tasks = JSON.parse(localStorage.getItem('tasks')) || []; // o parse transforma a string em um array de objetos, funciona como o inverso do stringify; se nao tiver nada no localStorage, ele retorna um array vazio
+const btnRemoveCompleted = document.querySelector('#btn-remover-concluidas');
+const btnRemoveAll = document.querySelector('#btn-remover-todas');
+
+let tasks = JSON.parse(localStorage.getItem('tasks')) || []; // o parse transforma a string em um array de objetos, funciona como o inverso do stringify; se nao tiver nada no localStorage, ele retorna um array vazio
 
 let activeTask = null;
 let liActiveTask = null;
@@ -56,23 +59,30 @@ function createTaskElement(task) {
     li.appendChild(p);
     li.appendChild(button);
 
-    li.onclick = () => {
-        document.querySelectorAll('.app__section-task-list-item-active').forEach(element => {
-            element.classList.remove('app__section-task-list-item-active');
-        })
-        
-        if(activeTask == task) {
-            descriptionTaskParagraph.textContent = '';
-            activeTask = null;
-            liActiveTask = null;
-            return;
+    if(task.completed) {
+        li.classList.add('app__section-task-list-item-complete');
+        button.setAttribute('disabled', 'disabled');
+    } else {
+        li.onclick = () => {
+            document.querySelectorAll('.app__section-task-list-item-active').forEach(element => {
+                element.classList.remove('app__section-task-list-item-active');
+            })
+            
+            if(activeTask == task) {
+                descriptionTaskParagraph.textContent = '';
+                activeTask = null;
+                liActiveTask = null;
+                return;
+            }
+            activeTask = task;
+            liActiveTask = li;
+            descriptionTaskParagraph.textContent = task.description;
+            li.classList.add('app__section-task-list-item-active');
+            
         }
-        activeTask = task;
-        liActiveTask = li;
-        descriptionTaskParagraph.textContent = task.description;
-        li.classList.add('app__section-task-list-item-active');
-        
     }
+
+    
 
     return li;
 
@@ -113,6 +123,28 @@ document.addEventListener('focusFinished', () => {
         liActiveTask.classList.remove('app__section-task-list-item-active');
         liActiveTask.classList.add('app__section-task-list-item-complete');
         liActiveTask.querySelector('button').setAttribute('disabled', 'disabled');
-
+        activeTask.completed = true;
+        updateTask();
     }
 });
+
+const removeTasks = (onlyCompleted) => {
+    // const selector = onlyCompleted ? '.app__section-task-list-item-complete' : '.app__section-task-list-item';
+    let selector = '.app__section-task-list-item';
+    if(onlyCompleted) {
+        selector = '.app__section-task-list-item-complete';
+    }
+    document.querySelectorAll(selector).forEach(element => {
+        element.remove();
+    })
+    // tasks = tasks.filter(task => !task.completed);
+    if (onlyCompleted) {
+        tasks = tasks.filter(task => !task.completed);
+    } else {
+        tasks = [];
+    }
+    updateTask();
+};
+
+btnRemoveCompleted.onclick = () => removeTasks(true); // remove as tarefas completas
+btnRemoveAll.onclick = () => removeTasks(false); // remove todas as tarefas

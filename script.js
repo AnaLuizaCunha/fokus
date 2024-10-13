@@ -34,7 +34,7 @@ musicFocusInput.addEventListener('change', () => {
 
 focusBtn.addEventListener('click', () => {
     // elapsedTimeInSeconds = 1500;
-    elapsedTimeInSeconds = 30;
+    elapsedTimeInSeconds = 10;
     changeContext('foco');
     focusBtn.classList.add('active');
 });
